@@ -1,0 +1,1310 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hippo">
+<meta name="theme-color" content="#f6f4ef" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16171b" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<title>Hippo</title>
+<style>
+:root{
+  --bg:#f6f4ef; --card:#ffffff; --ink:#1c1c1e; --muted:#6c6b70; --line:#e7e3d9;
+  --chip:#ebe7dd; --accent:#6a55d8; --star:#e8a317; --star-off:#dcd7cc;
+  --danger:#c8382a; --shadow:0 1px 2px rgba(40,30,10,.06),0 0 0 1px var(--line);
+  --tabh:54px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#16171b; --card:#212227; --ink:#f2f2f4; --muted:#9b9ba3; --line:#2e2f36;
+    --chip:#2a2b31; --accent:#a493ff; --star:#f5b83d; --star-off:#3c3d45;
+    --danger:#ff6b5c; --shadow:0 0 0 1px var(--line);
+  }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--bg);color:var(--ink)}
+body{
+  font:16px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,"Segoe UI",Roboto,sans-serif;
+  min-height:100vh;padding-bottom:calc(150px + env(safe-area-inset-bottom));
+  -webkit-text-size-adjust:100%;
+}
+body.locked{overflow:hidden}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+button:disabled{opacity:.35}
+input,textarea,select{font:inherit;color:var(--ink)}
+svg{display:block}
+
+/* ---------- header ---------- */
+.top{
+  position:sticky;top:0;z-index:5;
+  background:color-mix(in srgb,var(--bg) 90%,transparent);
+  -webkit-backdrop-filter:saturate(1.5) blur(16px);backdrop-filter:saturate(1.5) blur(16px);
+  padding:calc(env(safe-area-inset-top) + 6px) 16px 8px;
+  border-bottom:1px solid transparent;transition:border-color .2s;
+}
+.top.scrolled{border-bottom-color:var(--line)}
+.title-row{display:flex;align-items:center;gap:2px;height:46px}
+h1{font-size:30px;font-weight:760;letter-spacing:-.025em;margin:0;flex:1}
+.icon-btn{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;color:var(--ink);flex:none}
+.icon-btn:active,.icon-btn.on{background:var(--chip)}
+.icon-btn svg{width:23px;height:23px}
+.icon-btn.sm{width:36px;height:36px}
+.icon-btn.sm svg{width:19px;height:19px}
+.search{display:none;padding:2px 0 8px}
+.search.on{display:block}
+.search input{
+  width:100%;height:42px;border-radius:12px;border:0;background:var(--chip);
+  padding:0 14px;font-size:16px;outline:none;-webkit-appearance:none;
+}
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:4px 16px 10px}
+.chips::-webkit-scrollbar{display:none}
+.chip{
+  flex:none;height:38px;padding:0 15px;border-radius:19px;background:var(--chip);
+  display:inline-flex;align-items:center;gap:7px;font-size:15px;font-weight:620;white-space:nowrap;
+  transition:background .15s,color .15s;
+}
+.chip .dot{width:9px;height:9px;border-radius:50%;flex:none}
+.chip .n{font-weight:500;color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+.chip.on{background:var(--ink);color:var(--bg)}
+.chip.on .n{color:inherit;opacity:.65}
+.sortbar{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.seg{display:inline-flex;background:var(--chip);border-radius:10px;padding:2px;flex:none}
+.seg button{height:30px;padding:0 12px;border-radius:8px;font-size:13px;font-weight:620;color:var(--muted);white-space:nowrap}
+.seg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.14)}
+.count{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;text-align:right}
+.sub-people{padding-top:2px}
+
+/* ---------- starter cards ---------- */
+main{padding:10px 16px;min-height:60vh}
+main.slide-l{animation:inL .22s ease-out}
+main.slide-r{animation:inR .22s ease-out}
+@keyframes inL{from{opacity:.2;transform:translateX(28px)}to{opacity:1;transform:none}}
+@keyframes inR{from{opacity:.2;transform:translateX(-28px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border-radius:16px;padding:14px 8px 12px 16px;margin-bottom:10px;box-shadow:var(--shadow)}
+.row1{display:flex;gap:4px;align-items:flex-start}
+.stmt{flex:1;margin:3px 0 0;font-size:17px;font-weight:620;line-height:1.3;word-wrap:break-word;min-width:0}
+.row1 .icon-btn{margin-top:-6px;color:var(--muted)}
+.row2{display:flex;align-items:center;gap:10px;margin-top:6px;margin-left:-5px}
+.stars{display:flex}
+.stars button{width:32px;height:34px;display:grid;place-items:center;color:var(--star-off);transition:transform .12s}
+.stars button svg{width:21px;height:21px}
+.stars button.on{color:var(--star)}
+.stars button:active{transform:scale(1.25)}
+.stars.big button{width:46px;height:46px}
+.stars.big button svg{width:32px;height:32px}
+.tag{font-size:12.5px;color:var(--muted);display:inline-flex;align-items:center;gap:5px;font-weight:550}
+.tag i{width:7px;height:7px;border-radius:50%;display:block}
+.notes{
+  margin:6px 8px 0 0;color:var(--muted);font-size:15px;white-space:pre-wrap;word-wrap:break-word;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.card.open .notes{display:block;-webkit-line-clamp:unset;color:var(--ink)}
+.empty{text-align:center;color:var(--muted);padding:56px 24px;font-size:15px}
+.empty strong{display:block;color:var(--ink);font-size:17px;margin-bottom:6px}
+.foot{text-align:center;color:var(--muted);font-size:12.5px;padding:10px 0 0;opacity:.8}
+
+/* ---------- people ---------- */
+.prow{
+  display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+  background:var(--card);border-radius:16px;padding:12px 10px 12px 14px;margin-bottom:10px;box-shadow:var(--shadow);
+}
+.prow:active{transform:scale(.99)}
+.av{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-size:16px;flex:none;letter-spacing:.02em}
+.av.lg{width:76px;height:76px;font-size:28px;margin:0 auto}
+.av.sm{width:36px;height:36px;font-size:13px}
+.av.xs{width:22px;height:22px;font-size:9.5px;margin-left:-8px}
+.pmain{flex:1;min-width:0;display:block}
+.pname{font-weight:650;font-size:17px;display:flex;align-items:center;gap:5px}
+.pname svg{width:14px;height:14px;color:var(--accent);flex:none}
+.psub{display:block;font-size:13.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.badges{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.badge{font-size:12px;font-weight:650;padding:3px 8px;border-radius:999px;background:var(--chip);color:var(--ink)}
+.badge.hot{background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent)}
+.chev{width:18px;height:18px;color:var(--muted);flex:none;opacity:.6}
+
+/* ---------- groups / rows ---------- */
+.sec{font-size:13px;font-weight:650;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:6px 0 10px}
+.group{background:var(--card);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.lrow{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-bottom:1px solid var(--line);width:100%;text-align:left}
+.group > .lrow:last-child,.group > :last-child{border-bottom:0}
+button.lrow:active{background:var(--chip)}
+.lrow .t{flex:1;min-width:0;white-space:pre-wrap;word-wrap:break-word;text-align:left;display:block;font-size:15.5px}
+.lrow .t .k,.lrow .t .d{display:block;font-size:12.5px;color:var(--muted);font-weight:650;margin-bottom:2px;white-space:normal}
+.lrow.up{align-items:center}
+.lrow.up .t b{display:block;font-weight:650}
+.lrow.up .t span{display:block;color:var(--muted);font-size:13.5px;white-space:pre-line}
+.check{width:24px;height:24px;border-radius:50%;border:2px solid var(--star-off);flex:none;display:grid;place-items:center;color:transparent;margin-top:-1px}
+.check svg{width:14px;height:14px}
+.check.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.lrow.done .t{color:var(--muted);text-decoration:line-through}
+.lrow.more{justify-content:center;color:var(--accent);font-weight:600;font-size:14px}
+.inline-add{padding:2px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.inline-add svg{width:22px;height:22px;color:var(--accent);flex:none}
+.inline-add input{flex:1;min-width:0;height:46px;border:0;background:none;font-size:16px;outline:none}
+.muted-row{padding:14px;color:var(--muted);font-size:14.5px}
+
+/* person page */
+.profile{text-align:center;padding:6px 0 2px}
+.profile h3{margin:12px 0 2px;font-size:25px;letter-spacing:-.02em}
+.profile .rel{color:var(--muted);font-size:15px}
+.meta{display:flex;flex-direction:column;gap:3px;margin-top:10px;font-size:14px;color:var(--muted)}
+.meta b{color:var(--ink);font-weight:600}
+.meta .hot{color:var(--accent);font-weight:650}
+.qa{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:18px 0 4px}
+.qa button{
+  background:var(--card);box-shadow:var(--shadow);border-radius:14px;height:66px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+  font-size:12.5px;font-weight:650;color:var(--accent);
+}
+.qa svg{width:22px;height:22px}
+.sect{margin-top:24px}
+.sect-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;min-height:24px}
+.sect-h h4{margin:0;font-size:13px;font-weight:650;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.sect-h button{font-size:15px;font-weight:620;color:var(--accent)}
+
+/* shuffle */
+.shuf{background:var(--card);border-radius:20px;box-shadow:var(--shadow);padding:22px 18px 18px;text-align:center}
+.shuf-t{font-size:24px;font-weight:700;line-height:1.25;margin:12px 0 8px;letter-spacing:-.01em;word-wrap:break-word}
+.shuf .stars{justify-content:center}
+.shuf-n{color:var(--muted);white-space:pre-wrap;margin:10px 0 0;font-size:15.5px;word-wrap:break-word}
+.shuf-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+
+.fab{
+  position:fixed;right:20px;bottom:calc(var(--tabh) + 16px + env(safe-area-inset-bottom));z-index:6;
+  width:60px;height:60px;border-radius:30px;background:var(--accent);color:#fff;
+  display:grid;place-items:center;box-shadow:0 8px 24px rgba(0,0,0,.24),0 2px 6px rgba(0,0,0,.12);
+  transition:transform .12s;
+}
+@media (prefers-color-scheme: dark){ .fab{color:#16171b} }
+.fab:active{transform:scale(.92)}
+.fab svg{width:28px;height:28px}
+
+.tabbar{
+  position:fixed;left:0;right:0;bottom:0;z-index:7;display:flex;
+  background:color-mix(in srgb,var(--bg) 92%,transparent);
+  -webkit-backdrop-filter:saturate(1.5) blur(16px);backdrop-filter:saturate(1.5) blur(16px);
+  border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);
+}
+.tabbar button{flex:1;height:var(--tabh);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;font-weight:650;color:var(--muted)}
+.tabbar button svg{width:25px;height:25px}
+.tabbar button.on{color:var(--accent)}
+
+/* ---------- sheets ---------- */
+.sheet-wrap{position:fixed;inset:0;z-index:20;pointer-events:none}
+.sheet-wrap.l2{z-index:25}
+.sheet-wrap.on{pointer-events:auto}
+.backdrop{position:absolute;inset:0;background:rgba(0,0,0,.38);opacity:0;transition:opacity .25s}
+.sheet-wrap.on .backdrop{opacity:1}
+.sheet{
+  position:absolute;left:0;right:0;bottom:0;top:calc(env(safe-area-inset-top) + 12px);
+  background:var(--bg);border-radius:18px 18px 0 0;display:flex;flex-direction:column;
+  transform:translateY(105%);transition:transform .3s cubic-bezier(.2,.85,.25,1);
+  max-width:640px;margin:0 auto;box-shadow:0 -6px 30px rgba(0,0,0,.18);
+}
+.l2 .sheet{top:calc(env(safe-area-inset-top) + 30px)}
+.sheet-wrap.on .sheet{transform:none}
+.sh-head{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:8px;border-bottom:1px solid var(--line);flex:none}
+.sh-head h2{margin:0;font-size:17px;font-weight:650;max-width:52vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.txt-btn{height:40px;padding:0 10px;font-size:17px;color:var(--accent);justify-self:start}
+.txt-btn.strong{font-weight:650;justify-self:end}
+.sh-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 16px calc(48px + env(safe-area-inset-bottom))}
+.lbl{display:block;font-size:13px;font-weight:650;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:18px 0 8px}
+.lbl:first-child{margin-top:0}
+textarea,.field{
+  width:100%;border:0;border-radius:12px;background:var(--card);box-shadow:var(--shadow);
+  padding:12px 14px;font-size:16px;outline:none;resize:none;-webkit-appearance:none;appearance:none;display:block;
+}
+.field{min-height:46px}
+select.field{padding-right:30px;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 17px) 20px,calc(100% - 12px) 20px;background-size:5px 5px;background-repeat:no-repeat}
+textarea:focus,.field:focus{box-shadow:0 0 0 2px var(--accent)}
+.big-t{font-weight:600;font-size:17px}
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick .chip{background:var(--card);box-shadow:var(--shadow);height:36px;font-size:14.5px}
+.pick .chip.on{background:var(--ink);color:var(--bg);box-shadow:none}
+.pick + .field{margin-top:8px}
+.bday{display:grid;grid-template-columns:1.25fr .8fr 1fr;gap:8px}
+.danger{
+  display:block;width:100%;margin-top:32px;height:48px;border-radius:12px;
+  background:var(--card);box-shadow:var(--shadow);color:var(--danger);font-weight:600;
+}
+.catrow{display:flex;align-items:center;gap:2px;padding:4px 6px 4px 12px;border-bottom:1px solid var(--line)}
+.catrow:last-child{border-bottom:0}
+.swatch{width:26px;height:26px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 2px rgba(255,255,255,.25)}
+.catrow .swatch{margin-right:8px;width:24px;height:24px}
+.swatch.on{box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--ink)}
+.swatches{display:flex;flex-wrap:wrap;gap:12px;padding:4px 2px}
+.catrow input{flex:1;min-width:0;border:0;background:none;font-size:16px;height:40px;outline:none;font-weight:550}
+.catrow .del{color:var(--danger)}
+.addcat{display:flex;gap:8px;margin-top:10px}
+.addcat .field{flex:1;height:44px;padding:0 14px}
+.btn{height:46px;padding:0 16px;border-radius:12px;background:var(--ink);color:var(--bg);font-weight:620;font-size:15px;flex:none}
+.btn.ghost{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
+.btns{display:grid;gap:8px}
+.btns .btn{width:100%}
+.hint{color:var(--muted);font-size:14px;margin:0 0 12px;line-height:1.45}
+.hint b{color:var(--ink);font-weight:600}
+.spacer{height:28px}
+.status{display:flex;align-items:center;gap:12px;padding:14px}
+.status svg{width:26px;height:26px;flex:none;color:var(--muted)}
+.status.on svg{color:var(--accent)}
+.status b{display:block}
+.status span{display:block;color:var(--muted);font-size:14px}
+.toggle{display:flex;justify-content:space-between;align-items:center;background:var(--card);box-shadow:var(--shadow);border-radius:12px;padding:12px 14px;width:100%;font-weight:550;margin-top:18px}
+.sw{width:48px;height:29px;border-radius:15px;background:var(--star-off);position:relative;transition:background .2s;flex:none}
+.sw::after{content:'';position:absolute;top:3px;left:3px;width:23px;height:23px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.toggle.on .sw{background:var(--accent)}
+.toggle.on .sw::after{transform:translateX(19px)}
+
+/* ---------- toast ---------- */
+.toast{
+  position:fixed;left:16px;right:16px;bottom:calc(var(--tabh) + 92px + env(safe-area-inset-bottom));z-index:40;
+  background:var(--ink);color:var(--bg);border-radius:14px;padding:12px 14px;margin:0 auto;
+  display:flex;align-items:center;gap:12px;font-size:15px;max-width:440px;
+  transform:translateY(16px);opacity:0;pointer-events:none;transition:all .22s;
+}
+body.locked .toast{bottom:calc(24px + env(safe-area-inset-bottom))}
+.toast.on{transform:none;opacity:1;pointer-events:auto}
+.toast span{flex:1}
+.toast button{color:var(--accent);font-weight:700}
+@media (prefers-color-scheme: dark){ .toast button{color:#5b45c9} }
+
+/* ---------- lock ---------- */
+.lock{position:fixed;inset:0;z-index:50;background:var(--bg);display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px 24px 30vh;text-align:center}
+.lock.on{display:flex}
+.lock img{width:88px;height:88px;border-radius:22px;box-shadow:0 6px 20px rgba(0,0,0,.18)}
+.lock h2{margin:18px 0 18px;font-size:22px}
+.lock form{width:100%;max-width:320px;display:grid;gap:10px}
+.lock input{height:54px;text-align:center;font-size:22px;letter-spacing:.25em;border-radius:14px;border:0;background:var(--card);box-shadow:var(--shadow);outline:none;-webkit-appearance:none}
+.lock input:focus{box-shadow:0 0 0 2px var(--accent)}
+.lock .btn{height:50px;background:var(--accent);color:#fff}
+.lockerr{color:var(--danger);font-weight:600;min-height:22px;margin:12px 0 0}
+.link{color:var(--muted);font-size:14px;text-decoration:underline;margin-top:6px}
+.shake{animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(-9px)}40%,80%{transform:translateX(9px)}}
+.shield{position:fixed;inset:0;z-index:60;background:var(--bg);display:none;place-items:center}
+.shield img{width:88px;height:88px;border-radius:22px}
+body.shielded .shield{display:grid}
+</style>
+</head>
+<body>
+
+<header class="top" id="top">
+  <div class="title-row">
+    <h1 id="title">Starters</h1>
+    <button class="icon-btn" id="btn-shuffle" aria-label="Random starter">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="m15 15 6 6"/><path d="M4 4l5 5"/></svg>
+    </button>
+    <button class="icon-btn" id="btn-search" aria-label="Search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="11" cy="11" r="6.8"/><path d="m20 20-4-4"/></svg>
+    </button>
+    <button class="icon-btn" id="btn-menu" aria-label="Settings">
+      <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+    </button>
+  </div>
+  <div class="search" id="search"><input id="q" type="search" placeholder="Search" autocomplete="off" autocorrect="off" enterkeyhint="search"></div>
+  <div id="sub"></div>
+</header>
+
+<main id="list"></main>
+
+<button class="fab" id="fab" aria-label="Add">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+</button>
+
+<nav class="tabbar" id="tabbar">
+  <button data-tab="starters">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4h0A1.5 1.5 0 0 1 4 14.5z"/><path d="M8.5 8.5h7M8.5 11.5h4.5" stroke-linecap="round"/></svg>
+    <span>Starters</span>
+  </button>
+  <button data-tab="people">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><path d="M15.5 4.8a3.3 3.3 0 0 1 0 6.4M18 14.8c1.9.7 3.1 2.4 3.5 5.2"/></svg>
+    <span>People</span>
+  </button>
+</nav>
+
+<div class="sheet-wrap" id="L1"><div class="backdrop" data-act="close"></div><div class="sheet" role="dialog" aria-modal="true"></div></div>
+<div class="sheet-wrap l2" id="L2"><div class="backdrop" data-act="close"></div><div class="sheet" role="dialog" aria-modal="true"></div></div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="importfile" accept=".json,application/json" hidden>
+
+<div class="lock" id="lock">
+  <img src="icon-192.png" alt="">
+  <h2>Hippo is locked</h2>
+  <form id="lockform" autocomplete="off">
+    <input id="lockpass" type="password" placeholder="Passcode" autocomplete="off" autocorrect="off" autocapitalize="off" enterkeyhint="go" aria-label="Passcode">
+    <button class="btn" type="submit" id="lockbtn">Unlock</button>
+  </form>
+  <p class="lockerr" id="lockerr"></p>
+  <button class="link" id="forgot" type="button">Forgot passcode?</button>
+</div>
+<div class="shield"><img src="icon-192.png" alt=""></div>
+
+<script>
+(() => {
+'use strict';
+const KEY = 'hippo.v1', UIKEY = 'hippo.ui', LOCKCFG = 'hippo.lockcfg';
+const ITER = 310000;
+const COLORS = ['#d9573b','#3b7dd9','#2f9e6b','#9b59d0','#d99a1e','#d93b7a','#1fa3a3','#6a55d8','#7d7d88'];
+const RELATIONS = ['Friend','Family','Date','Work','School','Teammate','Neighbour'];
+const FACT_LABELS = ['Where we met','Work / school','Lives in','Interests','Family','Pets','Likes','Dislikes','Food & drink','Goals'];
+const KEEP = [[0,'Off'],[7,'Weekly'],[14,'Every 2 weeks'],[30,'Monthly'],[90,'Every 3 months'],[180,'Every 6 months']];
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const str = v => typeof v === 'string' ? v : '';
+const arr = v => Array.isArray(v) ? v : [];
+const validColor = c => /^#[0-9a-f]{6}$/i.test(c) ? c : null;
+const nextColor = used => COLORS.find(c => !used.includes(c)) || COLORS[Math.floor(Math.random() * COLORS.length)];
+const byName = (a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
+
+const STAR = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.8l2.75 5.86 6.4.78-4.72 4.42 1.22 6.34L12 17.06 6.35 20.2l1.22-6.34L2.85 9.44l6.4-.78z"/></svg>';
+const I = {
+  edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9a2.1 2.1 0 0 0-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></svg>',
+  up:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 15 6-6 6 6"/></svg>',
+  down:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>',
+  tick:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
+  chev:'<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg>',
+  pin:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M15 3l6 6-3 1-4 4 .5 5L13 20.5l-3.5-3.5L4 22.5 1.5 20 7 14.5 3.5 11 5 9.5l5 .5 4-4z"/></svg>',
+  chat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4A1.5 1.5 0 0 1 4 14.5z"/></svg>',
+  flag:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>',
+  info:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>',
+  lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>'
+};
+
+/* ---------- dates ---------- */
+const pad = n => String(n).padStart(2, '0');
+const todayISO = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
+const isoOffset = days => { const d = new Date(); d.setDate(d.getDate() + days); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
+const dayNum = iso => { const [y, m, d] = iso.split('-').map(Number); return Math.floor(Date.UTC(y, m - 1, d) / 864e5); };
+const daysSince = iso => dayNum(todayISO()) - dayNum(iso);
+function ago(iso) {
+  const n = daysSince(iso);
+  if (n < 0) return 'upcoming'; if (n === 0) return 'today'; if (n === 1) return 'yesterday';
+  if (n < 7) return `${n} days ago`; if (n < 60) return `${Math.round(n / 7)} wk ago`;
+  if (n < 365) return `${Math.round(n / 30)} mo ago`; return `${(n / 365).toFixed(1).replace('.0', '')} yr ago`;
+}
+function fmtDate(iso, withYear) {
+  const [y, m, d] = iso.split('-').map(Number);
+  const showY = withYear || y !== new Date().getFullYear();
+  return `${MONTHS[m - 1]} ${d}${showY ? `, ${y}` : ''}`;
+}
+
+/* ---------- crypto ---------- */
+const TE = new TextEncoder(), TD = new TextDecoder();
+const cryptoOK = !!(window.crypto && crypto.subtle && window.isSecureContext);
+function b64(buf) { const u = new Uint8Array(buf); let s = ''; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s); }
+function unb64(s) { const b = atob(s), u = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; }
+async function deriveKey(pass, salt, iter) {
+  const base = await crypto.subtle.importKey('raw', TE.encode(pass), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: iter, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+}
+async function seal(obj, k) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, k.key, TE.encode(JSON.stringify(obj)));
+  return { app: 'hippo', enc: 1, kdf: 'PBKDF2-SHA256/AES-GCM-256', iter: k.iter, salt: b64(k.salt), iv: b64(iv), ct: b64(ct), numeric: !!k.numeric };
+}
+async function unseal(env, key) {
+  const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(env.iv) }, key, unb64(env.ct));
+  return JSON.parse(TD.decode(pt));
+}
+
+/* ---------- data ---------- */
+function defaultCats() {
+  return [['Date', 0], ['Friends', 1], ['Sports', 2], ['Family', 3]].map(([name, i]) => ({ id: uid(), name, color: COLORS[i] }));
+}
+function blank() { return { v: 1, lastExport: 0, categories: defaultCats(), starters: [], people: [] }; }
+function seed() {
+  const S0 = blank(), cats = S0.categories, now = Date.now(); let k = 0;
+  const st = (ci, text, rating, notes) => { const t = now - (k++) * 60000; return { id: uid(), cat: cats[ci].id, text, rating, notes, created: t, updated: t }; };
+  S0.starters = [
+    st(0, "What's something you're weirdly good at?", 4, "Light and easy. Follow up: how'd you get into it?"),
+    st(0, "Best trip you've ever taken — and the worst?", 5, "The two-sided version keeps it from being a résumé answer."),
+    st(1, "What's a hot take you'll actually defend?", 5, "Great with a group, gets a debate going."),
+    st(1, "What's something you changed your mind on recently?", 3, ""),
+    st(2, "Who's the most overrated player right now?", 4, "Guaranteed argument."),
+    st(2, "Best game you've ever watched live?", 4, ""),
+    st(3, "What was life like when you were my age?", 5, "Works great with grandparents — let them run with it."),
+    st(3, "What's a family story I've never heard?", 4, "")
+  ];
+  S0.people = [{
+    id: uid(), name: 'Sam (example)', relation: 'Friend', color: COLORS[7], pinned: false,
+    birthday: isoOffset(9).slice(5), keep: 14, notes: 'This is an example person — edit or delete it.',
+    facts: [
+      { id: uid(), label: 'Where we met', value: 'Intramural soccer' },
+      { id: uid(), label: 'Interests', value: 'Climbing, F1, cooking' },
+      { id: uid(), label: 'Pets', value: 'Dog named Juno' }
+    ],
+    topics: [
+      { id: uid(), text: 'Ask how the job interview went', done: false, created: now, doneAt: 0 },
+      { id: uid(), text: 'Recommend the climbing gym downtown', done: false, created: now, doneAt: 0 }
+    ],
+    log: [{ id: uid(), date: isoOffset(-16), text: 'Grabbed coffee. Planning a trip out west in the spring. Nervous about an interview Thursday.' }],
+    created: now, updated: now
+  }];
+  return S0;
+}
+function sanitize(d) {
+  if (!d || typeof d !== 'object') return null;
+  const rawSt = Array.isArray(d.starters) ? d.starters : (Array.isArray(d.items) ? d.items : null);
+  if (!Array.isArray(d.categories) || !rawSt) return null;
+  const cats = d.categories.filter(c => c && c.id && typeof c.name === 'string')
+    .map((c, i) => ({ id: String(c.id), name: c.name.slice(0, 40), color: validColor(c.color) || COLORS[i % COLORS.length] }));
+  const ids = new Set(cats.map(c => c.id));
+  const starters = rawSt.filter(i => i && i.id && ids.has(String(i.cat)) && typeof i.text === 'string').map(i => ({
+    id: String(i.id), cat: String(i.cat), text: i.text,
+    rating: Math.max(0, Math.min(5, Math.round(+i.rating || 0))), notes: str(i.notes),
+    created: +i.created || Date.now(), updated: +i.updated || +i.created || Date.now()
+  }));
+  const people = arr(d.people).filter(p => p && p.id && typeof p.name === 'string').map((p, i) => ({
+    id: String(p.id), name: p.name.slice(0, 60), relation: str(p.relation).slice(0, 30),
+    color: validColor(p.color) || COLORS[i % COLORS.length], pinned: !!p.pinned,
+    birthday: /^(\d{4}-)?\d{2}-\d{2}$/.test(p.birthday) ? p.birthday : '',
+    keep: Math.max(0, Math.min(365, Math.round(+p.keep || 0))), notes: str(p.notes),
+    facts: arr(p.facts).filter(f => f && typeof f.value === 'string').map(f => ({ id: String(f.id || uid()), label: str(f.label).slice(0, 40), value: f.value })),
+    topics: arr(p.topics).filter(t => t && typeof t.text === 'string').map(t => ({ id: String(t.id || uid()), text: t.text, done: !!t.done, created: +t.created || Date.now(), doneAt: +t.doneAt || 0 })),
+    log: arr(p.log).filter(l => l && typeof l.text === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(l.date)).map(l => ({ id: String(l.id || uid()), date: l.date, text: l.text })),
+    created: +p.created || Date.now(), updated: +p.updated || Date.now()
+  }));
+  return { v: 1, lastExport: +d.lastExport || 0, categories: cats, starters, people };
+}
+
+let S = null;   // app data (null while locked)
+let K = null;   // { key, salt, iter, numeric } when a passcode is set
+let ui = { tab: 'starters', cat: 'all', sort: 'rating', psort: 'recent' };
+try { Object.assign(ui, JSON.parse(localStorage.getItem(UIKEY) || '{}')); } catch (e) {}
+const saveUI = () => { try { localStorage.setItem(UIKEY, JSON.stringify(ui)); } catch (e) {} };
+let query = '';
+
+let saveChain = Promise.resolve(), pending = 0;
+function save() {
+  if (!S) return saveChain;
+  const data = S, k = K; pending++;
+  saveChain = saveChain.then(async () => {
+    try { localStorage.setItem(KEY, JSON.stringify(k ? await seal(data, k) : data)); }
+    catch (e) { toast('Couldn’t save — storage is full or blocked'); }
+    finally { pending--; }
+  });
+  return saveChain;
+}
+function readStored() { try { const r = localStorage.getItem(KEY); return r ? JSON.parse(r) : null; } catch (e) { return null; } }
+function lockAfter() { try { const c = JSON.parse(localStorage.getItem(LOCKCFG) || '{}'); return typeof c.after === 'number' ? c.after : 1; } catch (e) { return 1; } }
+function setLockAfter(m) { try { localStorage.setItem(LOCKCFG, JSON.stringify({ after: m })); } catch (e) {} }
+
+const catById = id => S.categories.find(c => c.id === id);
+const starterById = id => S.starters.find(i => i.id === id);
+const personById = id => S.people.find(p => p.id === id);
+const touch = p => { p.updated = Date.now(); };
+const initials = n => Array.from(n.replace(/\(.*?\)/g, '').trim()).length ? n.replace(/\(.*?\)/g, '').trim().split(/\s+/).slice(0, 2).map(w => Array.from(w)[0]).join('').toUpperCase() : '?';
+const lastTalked = p => p.log.reduce((m, l) => l.date > m && daysSince(l.date) >= 0 ? l.date : m, '');
+const openTopics = p => p.topics.filter(t => !t.done).length;
+function bdayIn(p) {
+  if (!p.birthday) return null;
+  const [m, d] = p.birthday.slice(-5).split('-').map(Number), y = new Date().getFullYear();
+  let n = dayNum(`${y}-${pad(m)}-${pad(d)}`) - dayNum(todayISO());
+  if (n < 0) n = dayNum(`${y + 1}-${pad(m)}-${pad(d)}`) - dayNum(todayISO());
+  return n;
+}
+function turning(p) {
+  if (!/^\d{4}-/.test(p.birthday)) return null;
+  const by = +p.birthday.slice(0, 4), n = bdayIn(p);
+  const next = new Date(); next.setDate(next.getDate() + n);
+  return next.getFullYear() - by;
+}
+function bdayText(p, n) {
+  const age = turning(p), a = age ? ` (turning ${age})` : '';
+  if (n === 0) return `🎂 Birthday today${a}`;
+  if (n === 1) return `🎂 Birthday tomorrow${a}`;
+  return `🎂 Birthday in ${n} days${a}`;
+}
+function overdue(p) {
+  if (!p.keep) return null;
+  const last = lastTalked(p);
+  if (!last) return 0;
+  const n = daysSince(last) - p.keep;
+  return n >= 0 ? n : null;
+}
+const isDue = p => overdue(p) !== null;
+
+/* ---------- boot / lock ---------- */
+function boot() {
+  const stored = readStored();
+  if (stored && stored.enc) { showLock(); return; }
+  S = sanitize(stored);
+  if (!S) {
+    S = seed();
+    // pull in data from the old Starters app if it lived on this same site
+    try {
+      const old = sanitize(JSON.parse(localStorage.getItem('starters.v1') || 'null'));
+      if (old && old.starters.length) { S.categories = old.categories; S.starters = old.starters; }
+    } catch (e) {}
+  }
+  save(); start();
+}
+function start() { render(); }
+function showLock() {
+  closeLayer(2); closeLayer(1); closeSearch();
+  S = null; K = null;
+  $('#list').innerHTML = ''; $('#sub').innerHTML = '';
+  const env = readStored();
+  const inp = $('#lockpass'); inp.value = '';
+  inp.setAttribute('inputmode', env && env.numeric ? 'numeric' : 'text');
+  $('#lockerr').textContent = '';
+  $('#lock').classList.add('on');
+}
+async function lockNow() { if (!K) return; await saveChain; showLock(); }
+$('#lockform').addEventListener('submit', async e => {
+  e.preventDefault();
+  const pass = $('#lockpass').value; if (!pass) return;
+  const env = readStored();
+  if (!env || !env.enc) { $('#lock').classList.remove('on'); boot(); return; }
+  const btn = $('#lockbtn'); btn.disabled = true; btn.textContent = 'Unlocking…';
+  try {
+    const salt = unb64(env.salt), key = await deriveKey(pass, salt, env.iter);
+    const d = sanitize(await unseal(env, key));
+    if (!d) throw new Error('corrupt');
+    S = d; K = { key, salt, iter: env.iter, numeric: !!env.numeric };
+    $('#lockpass').value = ''; $('#lockpass').blur();
+    $('#lock').classList.remove('on');
+    start();
+  } catch (err) {
+    $('#lockerr').textContent = 'Wrong passcode';
+    $('#lockpass').value = '';
+    const f = $('#lockform'); f.classList.remove('shake'); void f.offsetWidth; f.classList.add('shake');
+  } finally { btn.disabled = false; btn.textContent = 'Unlock'; }
+});
+$('#forgot').addEventListener('click', () => {
+  if (!confirm('Without the passcode, your Hippo data can’t be decrypted by anyone — including you. Erase everything and start fresh? You can restore a backup afterwards.')) return;
+  if (!confirm('Really erase all Hippo data on this phone?')) return;
+  try { localStorage.removeItem(KEY); } catch (e) {}
+  $('#lock').classList.remove('on');
+  S = blank(); K = null; save(); start(); toast('Hippo was reset');
+});
+let hiddenAt = 0;
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    hiddenAt = Date.now();
+    if (K) { document.body.classList.add('shielded'); if (lockAfter() === 0) lockNow(); }
+  } else {
+    if (K && Date.now() - hiddenAt >= lockAfter() * 60000) lockNow();
+    document.body.classList.remove('shielded');
+  }
+});
+
+/* ---------- layers (sheets) ---------- */
+const layers = { 1: { el: $('#L1'), ctx: null }, 2: { el: $('#L2'), ctx: null } };
+function openLayer(n, html, ctx) {
+  const L = layers[n];
+  L.ctx = ctx || {};
+  L.el.querySelector('.sheet').innerHTML = html;
+  L.el.classList.add('on');
+  document.body.classList.add('locked');
+}
+function closeLayer(n) {
+  const L = layers[n];
+  if (!L.el.classList.contains('on')) return;
+  if (document.activeElement && L.el.contains(document.activeElement)) document.activeElement.blur();
+  L.el.classList.remove('on');
+  const c = L.ctx; L.ctx = null;
+  if (c && c.onClose) c.onClose();
+  if (!layers[1].el.classList.contains('on') && !layers[2].el.classList.contains('on')) document.body.classList.remove('locked');
+}
+const isOpen = n => layers[n].el.classList.contains('on');
+for (const n of [1, 2]) {
+  const L = layers[n];
+  L.el.addEventListener('click', e => {
+    const b = e.target.closest('[data-act]'); if (!b || !L.el.contains(b)) return;
+    if (b.dataset.act === 'close') return closeLayer(n);
+    if (L.ctx && L.ctx.act) L.ctx.act(b.dataset.act, b, e);
+  });
+  L.el.addEventListener('submit', e => { e.preventDefault(); if (L.ctx && L.ctx.submit) L.ctx.submit(e); });
+  L.el.addEventListener('change', e => { if (L.ctx && L.ctx.change) L.ctx.change(e); });
+  L.el.addEventListener('keydown', e => { if (L.ctx && L.ctx.keydown) L.ctx.keydown(e); });
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (isOpen(2)) closeLayer(2); else if (isOpen(1)) closeLayer(1); } });
+function markPick(btn) {
+  const box = btn.parentElement;
+  box.querySelectorAll(`[data-act="${btn.dataset.act}"]`).forEach(x => x.classList.toggle('on', x === btn));
+}
+const head = (left, title, right) => `<div class="sh-head">${left}<h2>${esc(title)}</h2>${right}</div>`;
+const cancelBtn = '<button class="txt-btn" data-act="close">Cancel</button>';
+const saveBtn = (label = 'Save') => `<button class="txt-btn strong" data-act="save">${label}</button>`;
+
+/* ---------- main render ---------- */
+function render() {
+  if (!S) return;
+  if (ui.cat !== 'all' && !catById(ui.cat)) ui.cat = 'all';
+  document.querySelectorAll('#tabbar button').forEach(b => b.classList.toggle('on', b.dataset.tab === ui.tab));
+  $('#title').textContent = ui.tab === 'starters' ? 'Starters' : 'People';
+  $('#btn-shuffle').hidden = ui.tab !== 'starters';
+  $('#q').placeholder = ui.tab === 'starters' ? 'Search starters and notes' : 'Search names, info, notes';
+  $('#fab').setAttribute('aria-label', ui.tab === 'starters' ? 'Add starter' : 'Add person');
+  if (ui.tab === 'starters') renderStarters(); else renderPeople();
+}
+function starsHTML(n) {
+  let h = '';
+  for (let i = 1; i <= 5; i++) h += `<button data-act="rate" data-n="${i}" class="${i <= n ? 'on' : ''}" aria-label="${i} star${i > 1 ? 's' : ''}">${STAR}</button>`;
+  return h;
+}
+
+/* starters tab */
+function visibleStarters() {
+  const q = query.trim().toLowerCase();
+  let a = (ui.cat === 'all' || q) ? S.starters.slice() : S.starters.filter(i => i.cat === ui.cat);
+  if (q) a = a.filter(i => (i.text + '\n' + i.notes).toLowerCase().includes(q));
+  if (ui.sort === 'rating') a.sort((x, y) => y.rating - x.rating || y.updated - x.updated);
+  else if (ui.sort === 'new') a.sort((x, y) => y.created - x.created);
+  else a.sort((x, y) => x.text.localeCompare(y.text, undefined, { sensitivity: 'base' }));
+  return a;
+}
+function renderStarters() {
+  const counts = {}; S.starters.forEach(i => counts[i.cat] = (counts[i.cat] || 0) + 1);
+  const chip = (id, name, n, color) => `<button class="chip ${ui.cat === id ? 'on' : ''}" data-cat="${id}">${color ? `<span class="dot" style="background:${color}"></span>` : ''}${esc(name)}<span class="n">${n}</span></button>`;
+  $('#sub').innerHTML = `<nav class="chips">${chip('all', 'All', S.starters.length) + S.categories.map(c => chip(c.id, c.name, counts[c.id] || 0, c.color)).join('')}</nav>
+    <div class="sortbar"><div class="seg">
+      <button data-sort="rating" class="${ui.sort === 'rating' ? 'on' : ''}">Top rated</button>
+      <button data-sort="new" class="${ui.sort === 'new' ? 'on' : ''}">Newest</button>
+      <button data-sort="az" class="${ui.sort === 'az' ? 'on' : ''}">A–Z</button>
+    </div><span class="count" id="count"></span></div>`;
+  const on = $('#sub .chip.on'); if (on) on.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  const a = visibleStarters(), q = query.trim(), showTag = ui.cat === 'all' || !!q;
+  $('#count').textContent = q ? `${a.length} ${a.length === 1 ? 'match' : 'matches'}` : `${a.length} ${a.length === 1 ? 'starter' : 'starters'}`;
+  if (!a.length) {
+    $('#list').innerHTML = q ? `<div class="empty"><strong>No matches</strong>Nothing contains “${esc(q)}”.</div>`
+      : `<div class="empty"><strong>Nothing here yet</strong>Tap + to add your first one.</div>`;
+    return;
+  }
+  $('#list').innerHTML = a.map(it => {
+    const c = catById(it.cat);
+    return `<article class="card" data-id="${it.id}">
+      <div class="row1"><p class="stmt">${esc(it.text)}</p><button class="icon-btn sm" data-act="edit" aria-label="Edit">${I.edit}</button></div>
+      <div class="row2"><div class="stars">${starsHTML(it.rating)}</div>${showTag && c ? `<span class="tag"><i style="background:${c.color}"></i>${esc(c.name)}</span>` : ''}</div>
+      ${it.notes ? `<p class="notes">${esc(it.notes)}</p>` : ''}
+    </article>`;
+  }).join('') + (q ? '' : '<p class="foot">Swipe sideways to switch categories</p>');
+}
+function setCat(id, dir) {
+  if (id === ui.cat) return;
+  ui.cat = id; saveUI(); render();
+  const m = $('#list'); m.classList.remove('slide-l', 'slide-r');
+  if (dir) { void m.offsetWidth; m.classList.add(dir > 0 ? 'slide-l' : 'slide-r'); }
+  window.scrollTo({ top: 0 });
+}
+function stepCat(d) {
+  const order = ['all', ...S.categories.map(c => c.id)];
+  const i = order.indexOf(ui.cat), j = Math.max(0, Math.min(order.length - 1, i + d));
+  if (j !== i) setCat(order[j], d);
+}
+
+/* people tab */
+function personText(p) {
+  return [p.name, p.relation, p.notes, ...p.facts.map(f => f.label + ' ' + f.value), ...p.topics.map(t => t.text), ...p.log.map(l => l.text)].join('\n').toLowerCase();
+}
+function attention(p) {
+  let s = 0; const bd = bdayIn(p), od = overdue(p);
+  if (bd !== null && bd <= 14) s += 200 - bd;
+  if (od !== null) s += 100 + Math.min(80, od);
+  return s + Math.min(20, openTopics(p) * 3);
+}
+function renderPeople() {
+  const q = query.trim().toLowerCase();
+  $('#sub').innerHTML = `<div class="sortbar sub-people"><div class="seg">
+      <button data-psort="recent" class="${ui.psort === 'recent' ? 'on' : ''}">Recent</button>
+      <button data-psort="attention" class="${ui.psort === 'attention' ? 'on' : ''}">Needs attention</button>
+      <button data-psort="az" class="${ui.psort === 'az' ? 'on' : ''}">A–Z</button>
+    </div><span class="count" id="count"></span></div>`;
+  let a = S.people.slice();
+  if (q) a = a.filter(p => personText(p).includes(q));
+  if (ui.psort === 'az') a.sort(byName);
+  else if (ui.psort === 'attention') a.sort((x, y) => attention(y) - attention(x) || byName(x, y));
+  else a.sort((x, y) => (lastTalked(y) || '').localeCompare(lastTalked(x) || '') || y.updated - x.updated);
+  a.sort((x, y) => (y.pinned ? 1 : 0) - (x.pinned ? 1 : 0));
+  $('#count').textContent = q ? `${a.length} ${a.length === 1 ? 'match' : 'matches'}` : `${a.length} ${a.length === 1 ? 'person' : 'people'}`;
+  if (!S.people.length) {
+    $('#list').innerHTML = `<div class="empty"><strong>No one here yet</strong>Tap + to add someone. Hippo remembers the details for you — what they’re into, what’s going on in their life, and what to bring up next time.</div>`;
+    return;
+  }
+  if (!a.length) { $('#list').innerHTML = `<div class="empty"><strong>No matches</strong>Nothing about anyone contains “${esc(query.trim())}”.</div>`; return; }
+  let html = '';
+  if (!q) {
+    const up = [];
+    S.people.forEach(p => {
+      const bd = bdayIn(p), od = overdue(p), parts = [];
+      if (bd !== null && bd <= 14) parts.push(bdayText(p, bd));
+      if (od !== null) { const last = lastTalked(p); parts.push(`Time to check in — ${last ? `last talked ${ago(last)}` : 'no chats logged yet'}`); }
+      if (parts.length) up.push({ p, k: bd !== null && bd <= 14 ? 0 : 1, n: bd !== null && bd <= 14 ? bd : -od, txt: parts.join('\n') });
+    });
+    up.sort((x, y) => x.k - y.k || x.n - y.n);
+    if (up.length) {
+      html += `<h3 class="sec">Coming up</h3><div class="group">${up.slice(0, 6).map(u => `<button class="lrow up" data-pid="${u.p.id}"><span class="av sm" style="background:${u.p.color}">${esc(initials(u.p.name))}</span><span class="t"><b>${esc(u.p.name)}</b><span>${esc(u.txt)}</span></span>${I.chev}</button>`).join('')}</div><div class="spacer"></div><h3 class="sec">Everyone</h3>`;
+    }
+  }
+  html += a.map(p => {
+    const last = lastTalked(p), n = openTopics(p), bd = bdayIn(p);
+    const sub = [p.relation, last ? `Talked ${ago(last)}` : 'No chats logged'].filter(Boolean).join(' · ');
+    const badges = [];
+    if (n) badges.push(`<span class="badge">${n} to bring up</span>`);
+    if (bd !== null && bd <= 30) badges.push(`<span class="badge ${bd <= 14 ? 'hot' : ''}">🎂 ${bd === 0 ? 'today' : bd === 1 ? 'tomorrow' : `in ${bd}d`}</span>`);
+    if (isDue(p)) badges.push('<span class="badge hot">Check in</span>');
+    return `<button class="prow" data-pid="${p.id}">
+      <span class="av" style="background:${p.color}">${esc(initials(p.name))}</span>
+      <span class="pmain"><span class="pname">${p.pinned ? I.pin : ''}${esc(p.name)}</span><span class="psub">${esc(sub)}</span>${badges.length ? `<span class="badges">${badges.join('')}</span>` : ''}</span>
+      ${I.chev}</button>`;
+  }).join('');
+  $('#list').innerHTML = html;
+}
+const refreshList = () => { if (S) render(); };
+
+/* main events */
+$('#sub').addEventListener('click', e => {
+  const c = e.target.closest('[data-cat]');
+  if (c) { const order = ['all', ...S.categories.map(x => x.id)]; setCat(c.dataset.cat, Math.sign(order.indexOf(c.dataset.cat) - order.indexOf(ui.cat))); return; }
+  const s = e.target.closest('[data-sort]'); if (s) { ui.sort = s.dataset.sort; saveUI(); render(); return; }
+  const p = e.target.closest('[data-psort]'); if (p) { ui.psort = p.dataset.psort; saveUI(); render(); }
+});
+$('#list').addEventListener('click', e => {
+  const pr = e.target.closest('[data-pid]'); if (pr) { openPerson(pr.dataset.pid); return; }
+  const card = e.target.closest('.card'); if (!card) return;
+  const id = card.dataset.id, b = e.target.closest('[data-act]');
+  if (b && b.dataset.act === 'rate') {
+    const it = starterById(id), n = +b.dataset.n;
+    it.rating = it.rating === n ? 0 : n; it.updated = Date.now(); save();
+    card.querySelectorAll('.stars button').forEach((s, i) => s.classList.toggle('on', i < it.rating));
+    return;
+  }
+  if (b && b.dataset.act === 'edit') { openStarterEditor(id); return; }
+  card.classList.toggle('open');
+});
+$('#tabbar').addEventListener('click', e => {
+  const b = e.target.closest('[data-tab]'); if (!b || !S) return;
+  if (ui.tab === b.dataset.tab) { window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+  ui.tab = b.dataset.tab; saveUI(); closeSearch(); render(); window.scrollTo({ top: 0 });
+});
+function closeSearch() { $('#search').classList.remove('on'); $('#btn-search').classList.remove('on'); $('#q').value = ''; query = ''; }
+$('#btn-search').addEventListener('click', () => {
+  if (!S) return;
+  if ($('#search').classList.contains('on')) { closeSearch(); render(); }
+  else { $('#search').classList.add('on'); $('#btn-search').classList.add('on'); $('#q').focus(); }
+});
+$('#q').addEventListener('input', e => { query = e.target.value; render(); });
+$('#q').addEventListener('keydown', e => { if (e.key === 'Enter') e.target.blur(); });
+$('#fab').addEventListener('click', () => { if (!S) return; ui.tab === 'starters' ? openStarterEditor(null) : editPerson(null); });
+$('#btn-menu').addEventListener('click', () => S && openSettings());
+$('#btn-shuffle').addEventListener('click', () => S && openShuffle());
+window.addEventListener('scroll', () => $('#top').classList.toggle('scrolled', window.scrollY > 4), { passive: true });
+let sx = null, sy = 0, st = 0;
+$('#list').addEventListener('touchstart', e => { if (e.touches.length !== 1) { sx = null; return; } sx = e.touches[0].clientX; sy = e.touches[0].clientY; st = Date.now(); }, { passive: true });
+$('#list').addEventListener('touchend', e => {
+  if (sx == null || ui.tab !== 'starters' || query.trim()) { sx = null; return; }
+  const t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy; sx = null;
+  if (Date.now() - st < 650 && Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 2) stepCat(dx < 0 ? 1 : -1);
+}, { passive: true });
+
+/* ---------- starter editor ---------- */
+function openStarterEditor(id) {
+  if (!S.categories.length) { toast('Add a category first'); openSettings(); return; }
+  const it = id ? starterById(id) : null;
+  const d = { rating: it ? it.rating : 0, cat: it ? it.cat : (ui.cat !== 'all' ? ui.cat : S.categories[0].id), people: new Set() };
+  const catPick = () => S.categories.map(c => `<button class="chip ${c.id === d.cat ? 'on' : ''}" data-act="pickcat" data-id="${c.id}"><span class="dot" style="background:${c.color}"></span>${esc(c.name)}</button>`).join('');
+  const people = S.people.slice().sort(byName);
+  openLayer(1, head(cancelBtn, it ? 'Edit starter' : 'New starter', saveBtn()) + `<div class="sh-body">
+      <label class="lbl" for="f-text">Statement</label>
+      <textarea id="f-text" class="big-t" rows="3" placeholder="What's something you're weirdly good at?">${esc(it ? it.text : '')}</textarea>
+      <span class="lbl">Category</span><div class="pick" id="f-cat">${catPick()}</div>
+      <span class="lbl">Rating</span><div class="stars big" id="f-rate">${starsHTML(d.rating)}</div>
+      <label class="lbl" for="f-notes">Notes</label>
+      <textarea id="f-notes" rows="5" placeholder="Follow-ups, how it landed, when to use it…">${esc(it ? it.notes : '')}</textarea>
+      ${people.length ? `<span class="lbl">Also add to “To bring up” for</span><div class="pick">${people.map(p => `<button class="chip" data-act="pickperson" data-id="${p.id}"><span class="av xs" style="background:${p.color}">${esc(initials(p.name))}</span>${esc(p.name)}</button>`).join('')}</div>` : ''}
+      ${it ? '<button class="danger" data-act="del">Delete starter</button>' : ''}
+    </div>`, {
+    act(a, b) {
+      if (a === 'pickcat') { d.cat = b.dataset.id; markPick(b); }
+      else if (a === 'rate') { const n = +b.dataset.n; d.rating = d.rating === n ? 0 : n; $('#f-rate').querySelectorAll('button').forEach((s, i) => s.classList.toggle('on', i < d.rating)); }
+      else if (a === 'pickperson') { const pid = b.dataset.id; d.people.has(pid) ? d.people.delete(pid) : d.people.add(pid); b.classList.toggle('on', d.people.has(pid)); }
+      else if (a === 'del') {
+        if (!confirm('Delete this starter?')) return;
+        const idx = S.starters.findIndex(i => i.id === id), [gone] = S.starters.splice(idx, 1);
+        save(); closeLayer(1); render();
+        toast('Starter deleted', 'Undo', () => { S.starters.splice(idx, 0, gone); save(); render(); });
+      }
+      else if (a === 'save') {
+        const text = $('#f-text').value.trim();
+        if (!text) { toast('Write the statement first'); $('#f-text').focus(); return; }
+        const notes = $('#f-notes').value.replace(/\s+$/, ''), now = Date.now();
+        if (it) Object.assign(it, { text, notes, cat: d.cat, rating: d.rating, updated: now });
+        else S.starters.push({ id: uid(), cat: d.cat, text, notes, rating: d.rating, created: now, updated: now });
+        d.people.forEach(pid => { const p = personById(pid); if (p) { p.topics.push({ id: uid(), text, done: false, created: now, doneAt: 0 }); touch(p); } });
+        save(); closeLayer(1); render();
+        if (d.people.size) toast(`Added to ${d.people.size === 1 ? personById([...d.people][0]).name : d.people.size + ' people'}’s list`);
+      }
+    }
+  });
+}
+
+/* ---------- shuffle ---------- */
+function openShuffle() {
+  const pool = ui.cat === 'all' ? S.starters : S.starters.filter(s => s.cat === ui.cat);
+  if (!pool.length) { toast('No starters here yet'); return; }
+  const ctx = { last: null, cur: null };
+  const pick = () => {
+    const cands = pool.length > 1 ? pool.filter(s => s.id !== ctx.last) : pool;
+    const w = cands.map(s => (s.rating + 1) ** 2); let r = Math.random() * w.reduce((a, b) => a + b, 0);
+    for (let i = 0; i < cands.length; i++) { r -= w[i]; if (r <= 0) return cands[i]; }
+    return cands[cands.length - 1];
+  };
+  const html = s => {
+    const c = catById(s.cat);
+    return head('<button class="txt-btn" data-act="close">Close</button>', ui.cat === 'all' ? 'Random pick' : `Random · ${c ? c.name : ''}`, '<span></span>') + `<div class="sh-body">
+      <div class="shuf">${c ? `<span class="tag"><i style="background:${c.color}"></i>${esc(c.name)}</span>` : ''}
+        <p class="shuf-t">${esc(s.text)}</p>
+        <div class="stars big" id="sh-rate">${starsHTML(s.rating)}</div>
+        ${s.notes ? `<p class="shuf-n">${esc(s.notes)}</p>` : ''}
+      </div>
+      <div class="shuf-actions"><button class="btn ghost" data-act="edit">Edit</button><button class="btn" data-act="another">Another</button></div>
+      <p class="hint" style="text-align:center;margin-top:14px">Higher-rated starters come up more often.</p></div>`;
+  };
+  const show = first => { const s = pick(); ctx.last = s.id; ctx.cur = s; first ? openLayer(1, html(s), ctx) : ($('#L1 .sheet').innerHTML = html(s)); };
+  ctx.act = (a, b) => {
+    if (a === 'another') show(false);
+    else if (a === 'edit') { const id = ctx.cur.id; closeLayer(1); openStarterEditor(id); }
+    else if (a === 'rate') { const s = ctx.cur, n = +b.dataset.n; s.rating = s.rating === n ? 0 : n; s.updated = Date.now(); save(); $('#sh-rate').querySelectorAll('button').forEach((x, i) => x.classList.toggle('on', i < s.rating)); render(); }
+  };
+  show(true);
+}
+
+/* ---------- person page ---------- */
+function personHTML(p, ctx) {
+  const last = lastTalked(p), bd = bdayIn(p), od = overdue(p);
+  const open = p.topics.filter(t => !t.done), done = p.topics.filter(t => t.done).sort((a, b) => b.doneAt - a.doneAt);
+  const meta = [];
+  if (p.birthday) { const [m, d] = p.birthday.slice(-5).split('-').map(Number); meta.push(`Birthday <b>${MONTHS[m - 1]} ${d}</b>${bd <= 30 ? ` · <span class="${bd <= 14 ? 'hot' : ''}">${bd === 0 ? 'today!' : bd === 1 ? 'tomorrow' : `in ${bd} days`}</span>` : ''}${turning(p) ? ` · turning ${turning(p)}` : ''}`); }
+  meta.push(last ? `Last talked <b>${fmtDate(last)}</b> (${ago(last)})` : 'No chats logged yet');
+  if (p.keep) { const k = KEEP.find(x => x[0] === p.keep); meta.push(`Keep in touch: ${k ? k[1].toLowerCase() : `every ${p.keep} days`}${od !== null ? ' · <span class="hot">due now</span>' : ''}`); }
+  const topicRow = t => `<div class="lrow ${t.done ? 'done' : ''}" data-id="${t.id}"><button class="check ${t.done ? 'on' : ''}" data-act="checktopic" aria-label="${t.done ? 'Mark not done' : 'Mark done'}">${I.tick}</button><button class="t" data-act="edittopic">${esc(t.text)}</button></div>`;
+  const log = p.log.slice().sort((a, b) => b.date.localeCompare(a.date));
+  return head('<button class="txt-btn" data-act="close">Back</button>', p.name, '<button class="txt-btn strong" data-act="edit">Edit</button>') + `<div class="sh-body">
+    <div class="profile">
+      <span class="av lg" style="background:${p.color}">${esc(initials(p.name))}</span>
+      <h3>${esc(p.name)}</h3>${p.relation ? `<div class="rel">${esc(p.relation)}</div>` : ''}
+      <div class="meta">${meta.map(m => `<div>${m}</div>`).join('')}</div>
+    </div>
+    <div class="qa">
+      <button data-act="addlog">${I.chat}Log a chat</button>
+      <button data-act="addtopic">${I.flag}Bring up</button>
+      <button data-act="addfact">${I.info}Add info</button>
+    </div>
+    <section class="sect"><div class="sect-h"><h4>To bring up${open.length ? ` · ${open.length}` : ''}</h4></div>
+      <div class="group">
+        <form class="inline-add" data-form="topic">${I.plus}<input id="newtopic" placeholder="Add something to bring up…" enterkeyhint="done" autocomplete="off"></form>
+        ${open.map(topicRow).join('')}
+        ${done.length ? `<button class="lrow more" data-act="toggledone">${ctx.showDone ? 'Hide' : 'Show'} ${done.length} done</button>` : ''}
+        ${ctx.showDone ? done.map(topicRow).join('') : ''}
+      </div></section>
+    <section class="sect"><div class="sect-h"><h4>Key info</h4><button data-act="addfact">Add</button></div>
+      <div class="group">${p.facts.length ? p.facts.map(f => `<button class="lrow" data-act="editfact" data-id="${f.id}"><span class="t">${f.label ? `<span class="k">${esc(f.label)}</span>` : ''}${esc(f.value)}</span></button>`).join('')
+        : '<div class="muted-row">Where you met, what they’re into, family, pets, likes and dislikes…</div>'}</div></section>
+    ${p.notes ? `<section class="sect"><div class="sect-h"><h4>Notes</h4><button data-act="edit">Edit</button></div><div class="group"><div class="lrow"><span class="t">${esc(p.notes)}</span></div></div></section>` : ''}
+    <section class="sect"><div class="sect-h"><h4>Chat log${log.length ? ` · ${log.length}` : ''}</h4><button data-act="addlog">Add</button></div>
+      <div class="group">${log.length ? log.map(l => `<button class="lrow" data-act="editlog" data-id="${l.id}"><span class="t"><span class="d">${fmtDate(l.date)} · ${ago(l.date)}</span>${esc(l.text)}</span></button>`).join('')
+        : '<div class="muted-row">After you talk, jot down what came up — it’s the easiest way to remember next time.</div>'}</div></section>
+  </div>`;
+}
+function openPerson(id) {
+  const p = personById(id); if (!p) return;
+  const ctx = {
+    id, showDone: false,
+    act(a, b) {
+      const p = personById(id); if (!p) return closeLayer(1);
+      if (a === 'edit') return editPerson(id);
+      if (a === 'addlog') return editLog(id, null);
+      if (a === 'editlog') return editLog(id, b.dataset.id);
+      if (a === 'addtopic') return editTopic(id, null);
+      if (a === 'edittopic') return editTopic(id, b.closest('.lrow').dataset.id);
+      if (a === 'addfact') return editFact(id, null);
+      if (a === 'editfact') return editFact(id, b.dataset.id);
+      if (a === 'toggledone') { ctx.showDone = !ctx.showDone; refreshPerson(); return; }
+      if (a === 'checktopic') {
+        const t = p.topics.find(x => x.id === b.closest('.lrow').dataset.id); if (!t) return;
+        t.done = !t.done; t.doneAt = t.done ? Date.now() : 0; touch(p); save(); refreshPerson(); refreshList();
+        if (t.done) toast('Marked as done', 'Undo', () => { t.done = false; t.doneAt = 0; save(); refreshPerson(); refreshList(); });
+      }
+    },
+    submit(e) {
+      if (e.target.dataset.form !== 'topic') return;
+      const p = personById(id), v = $('#newtopic').value.trim(); if (!v || !p) return;
+      p.topics.push({ id: uid(), text: v, done: false, created: Date.now(), doneAt: 0 }); touch(p); save();
+      refreshPerson(); refreshList();
+      const inp = $('#newtopic'); if (inp) inp.focus({ preventScroll: true });
+    }
+  };
+  openLayer(1, personHTML(p, ctx), ctx);
+}
+function refreshPerson() {
+  const c = layers[1].ctx; if (!c || !c.id || !isOpen(1)) return;
+  const p = personById(c.id); if (!p) { closeLayer(1); return; }
+  const body = $('#L1 .sh-body'), y = body ? body.scrollTop : 0;
+  $('#L1 .sheet').innerHTML = personHTML(p, c);
+  const nb = $('#L1 .sh-body'); if (nb) nb.scrollTop = y;
+}
+
+/* person editor */
+function editPerson(id) {
+  const p = id ? personById(id) : null, lvl = id ? 2 : 1;
+  const d = { color: p ? p.color : nextColor(S.people.map(x => x.color)), keep: p ? p.keep : 0, pinned: p ? p.pinned : false };
+  const bdy = p && /^\d{4}-/.test(p.birthday) ? p.birthday.slice(0, 4) : '';
+  const [bm, bd] = p && p.birthday ? p.birthday.slice(-5).split('-').map(Number) : [0, 0];
+  openLayer(lvl, head(cancelBtn, p ? 'Edit person' : 'New person', saveBtn(p ? 'Save' : 'Add')) + `<div class="sh-body">
+    <label class="lbl" for="p-name">Name</label>
+    <input class="field big-t" id="p-name" value="${esc(p ? p.name : '')}" placeholder="Name or nickname" autocomplete="off" maxlength="60">
+    <span class="lbl">Who they are to you</span>
+    <div class="pick">${RELATIONS.map(r => `<button class="chip ${p && p.relation === r ? 'on' : ''}" data-act="rel" data-v="${r}">${r}</button>`).join('')}</div>
+    <input class="field" id="p-rel" value="${esc(p ? p.relation : '')}" placeholder="Or type your own (e.g. Cousin, Coworker)" maxlength="30" autocomplete="off">
+    <span class="lbl">Birthday</span>
+    <div class="bday">
+      <select class="field" id="p-bm" aria-label="Month"><option value="0">Month</option>${MONTHS.map((m, i) => `<option value="${i + 1}" ${bm === i + 1 ? 'selected' : ''}>${m}</option>`).join('')}</select>
+      <select class="field" id="p-bd" aria-label="Day"><option value="0">Day</option>${Array.from({ length: 31 }, (_, i) => `<option value="${i + 1}" ${bd === i + 1 ? 'selected' : ''}>${i + 1}</option>`).join('')}</select>
+      <input class="field" id="p-by" inputmode="numeric" maxlength="4" placeholder="Year (opt.)" value="${bdy}" aria-label="Year">
+    </div>
+    <span class="lbl">Keep in touch</span>
+    <div class="pick">${KEEP.map(([v, l]) => `<button class="chip ${d.keep === v ? 'on' : ''}" data-act="keep" data-v="${v}">${l}</button>`).join('')}</div>
+    <span class="lbl">Colour</span>
+    <div class="swatches">${COLORS.map(c => `<button class="swatch ${c === d.color ? 'on' : ''}" data-act="color" data-v="${c}" style="background:${c}" aria-label="Colour"></button>`).join('')}</div>
+    <button class="toggle ${d.pinned ? 'on' : ''}" data-act="pin"><span>Pin to top of People</span><span class="sw"></span></button>
+    <label class="lbl" for="p-notes">General notes</label>
+    <textarea id="p-notes" rows="4" placeholder="Anything that doesn’t fit elsewhere">${esc(p ? p.notes : '')}</textarea>
+    ${p ? '<button class="danger" data-act="del">Delete person</button>' : ''}
+  </div>`, {
+    act(a, b) {
+      if (a === 'rel') { const v = b.dataset.v, inp = $('#p-rel'); if (inp.value === v) { inp.value = ''; b.classList.remove('on'); } else { inp.value = v; markPick(b); } }
+      else if (a === 'keep') { d.keep = +b.dataset.v; markPick(b); }
+      else if (a === 'color') { d.color = b.dataset.v; markPick(b); }
+      else if (a === 'pin') { d.pinned = !d.pinned; b.classList.toggle('on', d.pinned); }
+      else if (a === 'del') {
+        if (!confirm(`Delete ${p.name} and everything noted about them?`)) return;
+        const idx = S.people.indexOf(p); S.people.splice(idx, 1); save();
+        closeLayer(2); closeLayer(1); render();
+        toast(`${p.name} deleted`, 'Undo', () => { S.people.splice(idx, 0, p); save(); render(); });
+      }
+      else if (a === 'save') {
+        const name = $('#p-name').value.trim();
+        if (!name) { toast('Add a name'); $('#p-name').focus(); return; }
+        const m = +$('#p-bm').value, dd = +$('#p-bd').value, yRaw = $('#p-by').value.trim();
+        let birthday = '';
+        if (m && dd) {
+          const y = /^\d{4}$/.test(yRaw) && +yRaw > 1900 && +yRaw <= new Date().getFullYear() ? yRaw : '';
+          if (yRaw && !y) { toast('Year should be 4 digits, e.g. 2004'); return; }
+          birthday = (y ? `${y}-` : '') + `${pad(m)}-${pad(dd)}`;
+        } else if (m || dd) { toast('Pick both a month and a day (or neither)'); return; }
+        const fields = { name, relation: $('#p-rel').value.trim(), birthday, keep: d.keep, color: d.color, pinned: d.pinned, notes: $('#p-notes').value.replace(/\s+$/, '') };
+        if (p) { Object.assign(p, fields); touch(p); save(); closeLayer(2); refreshPerson(); refreshList(); }
+        else {
+          const np = { id: uid(), ...fields, facts: [], topics: [], log: [], created: Date.now(), updated: Date.now() };
+          S.people.push(np); save();
+          if (ui.tab !== 'people') { ui.tab = 'people'; saveUI(); }
+          render(); openPerson(np.id);
+        }
+      }
+    },
+    change(e) {
+      if (e.target.id === 'p-rel') { const v = e.target.value.trim(); e.target.parentElement.querySelectorAll('[data-act="rel"]').forEach(x => x.classList.toggle('on', x.dataset.v === v)); }
+    }
+  });
+}
+
+/* log / topic / fact editors (level 2) */
+function editLog(pid, lid) {
+  const p = personById(pid), l = lid ? p.log.find(x => x.id === lid) : null;
+  openLayer(2, head(cancelBtn, l ? 'Edit chat' : 'Log a chat', saveBtn()) + `<div class="sh-body">
+    <label class="lbl" for="l-date">When</label>
+    <input class="field" type="date" id="l-date" value="${l ? l.date : todayISO()}" max="${todayISO()}">
+    <label class="lbl" for="l-text">What you talked about</label>
+    <textarea id="l-text" rows="6" placeholder="What came up? What’s going on in their life? Anything to remember?">${esc(l ? l.text : '')}</textarea>
+    <label class="lbl" for="l-follow">Bring up next time (optional)</label>
+    <input class="field" id="l-follow" placeholder="e.g. Ask how the interview went" autocomplete="off">
+    ${l ? '<button class="danger" data-act="del">Delete entry</button>' : ''}
+  </div>`, {
+    act(a) {
+      if (a === 'del') {
+        if (!confirm('Delete this entry?')) return;
+        p.log = p.log.filter(x => x !== l); touch(p); save(); closeLayer(2); refreshPerson(); refreshList();
+      } else if (a === 'save') {
+        const text = $('#l-text').value.trim(), follow = $('#l-follow').value.trim();
+        let date = $('#l-date').value || todayISO();
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) date = todayISO();
+        if (!text && !follow) { toast('Write something first'); $('#l-text').focus(); return; }
+        if (text) { if (l) Object.assign(l, { text, date }); else p.log.push({ id: uid(), date, text }); }
+        if (follow) p.topics.push({ id: uid(), text: follow, done: false, created: Date.now(), doneAt: 0 });
+        touch(p); save(); closeLayer(2); refreshPerson(); refreshList();
+        if (!l) toast(follow && text ? 'Logged — follow-up added' : follow ? 'Added to “To bring up”' : 'Logged');
+      }
+    }
+  });
+}
+function editTopic(pid, tid) {
+  const p = personById(pid), t = tid ? p.topics.find(x => x.id === tid) : null;
+  openLayer(2, head(cancelBtn, t ? 'Edit' : 'Bring up', saveBtn()) + `<div class="sh-body">
+    <label class="lbl" for="t-text">Something to bring up with ${esc(p.name)}</label>
+    <textarea id="t-text" class="big-t" rows="4" placeholder="e.g. Ask how the trip planning is going">${esc(t ? t.text : '')}</textarea>
+    ${t ? `<button class="toggle ${t.done ? 'on' : ''}" data-act="done"><span>Done / already talked about</span><span class="sw"></span></button>
+      <button class="danger" data-act="del">Delete</button>` : ''}
+  </div>`, {
+    act(a, b) {
+      if (a === 'done') { b.classList.toggle('on'); }
+      else if (a === 'del') { p.topics = p.topics.filter(x => x !== t); touch(p); save(); closeLayer(2); refreshPerson(); refreshList(); }
+      else if (a === 'save') {
+        const text = $('#t-text').value.trim(); if (!text) { toast('Write something first'); return; }
+        if (t) { const dn = $('#L2 [data-act="done"]').classList.contains('on'); t.text = text; if (dn !== t.done) { t.done = dn; t.doneAt = dn ? Date.now() : 0; } }
+        else p.topics.push({ id: uid(), text, done: false, created: Date.now(), doneAt: 0 });
+        touch(p); save(); closeLayer(2); refreshPerson(); refreshList();
+      }
+    }
+  });
+}
+function editFact(pid, fid) {
+  const p = personById(pid), f = fid ? p.facts.find(x => x.id === fid) : null;
+  openLayer(2, head(cancelBtn, f ? 'Edit info' : 'Add info', saveBtn()) + `<div class="sh-body">
+    <span class="lbl">Label</span>
+    <div class="pick">${FACT_LABELS.map(l => `<button class="chip ${f && f.label === l ? 'on' : ''}" data-act="label" data-v="${esc(l)}">${esc(l)}</button>`).join('')}</div>
+    <input class="field" id="f-label" value="${esc(f ? f.label : '')}" placeholder="Or your own label" maxlength="40" autocomplete="off">
+    <label class="lbl" for="f-value">Details</label>
+    <textarea id="f-value" rows="4" placeholder="e.g. Golden retriever named Juno">${esc(f ? f.value : '')}</textarea>
+    ${f ? '<button class="danger" data-act="del">Delete</button>' : ''}
+  </div>`, {
+    act(a, b) {
+      if (a === 'label') { $('#f-label').value = b.dataset.v; markPick(b); }
+      else if (a === 'del') { p.facts = p.facts.filter(x => x !== f); touch(p); save(); closeLayer(2); refreshPerson(); refreshList(); }
+      else if (a === 'save') {
+        const value = $('#f-value').value.trim(), label = $('#f-label').value.trim();
+        if (!value) { toast('Add the details'); $('#f-value').focus(); return; }
+        if (f) Object.assign(f, { label, value }); else p.facts.push({ id: uid(), label, value });
+        touch(p); save(); closeLayer(2); refreshPerson(); refreshList();
+      }
+    }
+  });
+}
+
+/* ---------- settings ---------- */
+function settingsBody() {
+  const counts = {}; S.starters.forEach(i => counts[i.cat] = (counts[i.cat] || 0) + 1);
+  const last = S.lastExport ? fmtDate(new Date(S.lastExport).toISOString().slice(0, 10), true) : 'never';
+  const after = lockAfter();
+  return `
+    <h3 class="sec">Starter categories</h3>
+    <div class="group">${S.categories.map((c, i) => `
+      <div class="catrow" data-id="${c.id}">
+        <button class="swatch" data-act="color" style="background:${c.color}" aria-label="Change colour"></button>
+        <input value="${esc(c.name)}" data-act="rename" maxlength="40" enterkeyhint="done" aria-label="Category name">
+        <button class="icon-btn sm" data-act="up" ${i === 0 ? 'disabled' : ''} aria-label="Move up">${I.up}</button>
+        <button class="icon-btn sm" data-act="down" ${i === S.categories.length - 1 ? 'disabled' : ''} aria-label="Move down">${I.down}</button>
+        <button class="icon-btn sm del" data-act="delcat" aria-label="Delete ${esc(c.name)} (${counts[c.id] || 0} starters)">${I.trash}</button>
+      </div>`).join('') || '<div class="muted-row">No categories yet.</div>'}
+    </div>
+    <form class="addcat" data-form="addcat"><input class="field" id="newcat" placeholder="New category, e.g. Work" maxlength="40" enterkeyhint="done" autocomplete="off"><button class="btn" type="submit">Add</button></form>
+    <p class="hint" style="margin-top:8px">Tap a colour dot to change it.</p>
+    <div class="spacer"></div>
+
+    <h3 class="sec">Privacy &amp; lock</h3>
+    <div class="group"><div class="status ${K ? 'on' : ''}">${I.lock}<div><b>Passcode ${K ? 'on' : 'off'}</b><span>${K ? 'Your data is encrypted on this phone' : 'Anyone holding your unlocked phone can open Hippo'}</span></div></div></div>
+    <div class="btns" style="margin-top:10px">${!cryptoOK ? '<p class="hint">Passcode lock needs the app to be opened over https (it will work on GitHub Pages).</p>'
+      : K ? '<button class="btn" data-act="locknow">Lock now</button><button class="btn ghost" data-act="changepass">Change passcode</button><button class="btn ghost" data-act="removepass">Turn off passcode</button>'
+      : '<button class="btn" data-act="setpass">Set up passcode</button>'}</div>
+    ${K ? `<span class="lbl">Auto-lock after leaving Hippo</span><div class="pick">${[[0, 'Immediately'], [1, '1 min'], [5, '5 min'], [15, '15 min']].map(([v, l]) => `<button class="chip ${after === v ? 'on' : ''}" data-act="after" data-v="${v}">${l}</button>`).join('')}</div>` : ''}
+    <p class="hint" style="margin-top:14px">Hippo has no server and no account. Nothing you type leaves this phone — GitHub only hosts the app’s code. With a passcode on, everything is encrypted (AES-256) on the phone and in backups, and Hippo hides itself in the app switcher.</p>
+    <div class="spacer"></div>
+
+    <h3 class="sec">Backup</h3>
+    <p class="hint">If Hippo is removed from your Home Screen or iOS clears its storage, your data is gone. Export a backup now and then and save it to Files. ${K ? 'Backups are encrypted with your passcode.' : '<b>Without a passcode, backups are readable by anyone who opens the file.</b>'} Last backup: <b>${last}</b>.</p>
+    <div class="btns">
+      <button class="btn" data-act="export">Export ${K ? 'encrypted ' : ''}backup</button>
+      <button class="btn ghost" data-act="import">Restore from backup</button>
+      <button class="btn ghost" data-act="csv">Export starters as CSV</button>
+    </div>
+    <p class="hint" style="margin-top:8px">Restore also accepts backups from the old Starters app (those get merged in). The CSV contains starters only — never people.</p>
+    <button class="danger" data-act="erase">Erase all Hippo data</button>`;
+}
+function openSettings() {
+  openLayer(1, head('<span></span>', 'Settings', '<button class="txt-btn strong" data-act="close">Done</button>') + `<div class="sh-body" id="setbody">${settingsBody()}</div>`, {
+    act(a, b) {
+      const row = b.closest('.catrow'), id = row && row.dataset.id, idx = S.categories.findIndex(c => c.id === id);
+      if (a === 'color') { const c = S.categories[idx]; c.color = COLORS[(COLORS.indexOf(c.color) + 1) % COLORS.length]; b.style.background = c.color; save(); render(); }
+      else if (a === 'up' || a === 'down') {
+        const j = idx + (a === 'up' ? -1 : 1); if (j < 0 || j >= S.categories.length) return;
+        [S.categories[idx], S.categories[j]] = [S.categories[j], S.categories[idx]]; save(); refreshSettings(); render();
+      }
+      else if (a === 'delcat') {
+        const c = S.categories[idx], n = S.starters.filter(i => i.cat === id).length;
+        if (!confirm(n ? `Delete “${c.name}” and its ${n} starter${n > 1 ? 's' : ''}? This can’t be undone.` : `Delete “${c.name}”?`)) return;
+        S.categories.splice(idx, 1); S.starters = S.starters.filter(i => i.cat !== id); save(); refreshSettings(); render();
+      }
+      else if (a === 'setpass') passForm('set');
+      else if (a === 'changepass') passForm('change');
+      else if (a === 'removepass') passForm('remove');
+      else if (a === 'locknow') lockNow();
+      else if (a === 'after') { setLockAfter(+b.dataset.v); markPick(b); }
+      else if (a === 'export') exportBackup();
+      else if (a === 'csv') exportCSV();
+      else if (a === 'import') $('#importfile').click();
+      else if (a === 'erase') {
+        if (!confirm('Erase all starters, people and notes from Hippo on this phone?')) return;
+        if (!confirm('This can’t be undone unless you have a backup. Erase everything?')) return;
+        try { localStorage.removeItem(KEY); } catch (e) {}
+        K = null; S = blank(); save(); closeLayer(1); render(); toast('Everything erased');
+      }
+    },
+    submit(e) {
+      if (e.target.dataset.form !== 'addcat') return;
+      const v = $('#newcat').value.trim(); if (!v) return;
+      S.categories.push({ id: uid(), name: v.slice(0, 40), color: nextColor(S.categories.map(c => c.color)) });
+      save(); refreshSettings(); render();
+      const f = $('#newcat'); if (f) f.focus();
+    },
+    change(e) {
+      if (e.target.dataset.act !== 'rename') return;
+      const c = catById(e.target.closest('.catrow').dataset.id), v = e.target.value.trim();
+      if (!v) { e.target.value = c.name; return; }
+      c.name = v; save(); render();
+    },
+    keydown(e) { if (e.key === 'Enter' && e.target.dataset.act === 'rename') e.target.blur(); }
+  });
+}
+function refreshSettings() { const b = $('#setbody'); if (b) { const y = b.scrollTop; b.innerHTML = settingsBody(); b.scrollTop = y; } }
+
+/* passcode forms */
+async function verifyPass(pass) {
+  if (!pass) return false;
+  await saveChain;
+  const env = readStored(); if (!env || !env.enc) return false;
+  try { await unseal(env, await deriveKey(pass, unb64(env.salt), env.iter)); return true; } catch (e) { return false; }
+}
+function passForm(mode) {
+  const title = { set: 'Set passcode', change: 'Change passcode', remove: 'Turn off passcode' }[mode];
+  const pw = (id, label, ac) => `<label class="lbl" for="${id}">${label}</label><input class="field" type="password" id="${id}" autocomplete="${ac}" autocorrect="off" autocapitalize="off">`;
+  openLayer(2, head(cancelBtn, title, saveBtn(mode === 'remove' ? 'Turn off' : 'Save')) + `<form class="sh-body" data-form="pass">
+    ${mode !== 'set' ? pw('pc0', 'Current passcode', 'current-password') : ''}
+    ${mode !== 'remove' ? pw('pc1', 'New passcode', 'new-password') + pw('pc2', 'Confirm passcode', 'new-password') : ''}
+    <button type="submit" hidden></button>
+    <p class="hint" style="margin-top:16px">${mode === 'remove'
+      ? 'Your data will be stored unencrypted on this phone, and new backups won’t be encrypted.'
+      : 'At least 4 characters. A 4–6 digit PIN stops someone casually picking up your phone; a longer passcode with letters is much harder to crack if someone copies the data off the phone. <b>There’s no reset.</b> If you forget it, the data can’t be recovered except from a backup whose passcode you remember.'}</p>
+  </form>`, { act(a) { if (a === 'save') run(); }, submit() { run(); } });
+  let busy = false;
+  async function run() {
+    if (busy) return;
+    const cur = $('#pc0') && $('#pc0').value, a = $('#pc1') && $('#pc1').value, b = $('#pc2') && $('#pc2').value;
+    if (mode !== 'remove') {
+      if (!a || a.length < 4) { toast('Use at least 4 characters'); return; }
+      if (a !== b) { toast('Passcodes don’t match'); return; }
+    }
+    busy = true; const btn = $('#L2 [data-act="save"]'); if (btn) btn.textContent = '…';
+    try {
+      if (mode !== 'set' && !(await verifyPass(cur))) { toast('Current passcode is wrong'); return; }
+      if (mode === 'remove') { K = null; await save(); toast('Passcode turned off'); }
+      else {
+        const salt = crypto.getRandomValues(new Uint8Array(16));
+        K = { key: await deriveKey(a, salt, ITER), salt, iter: ITER, numeric: /^\d+$/.test(a) };
+        await save(); toast(mode === 'set' ? 'Passcode on — Hippo is encrypted' : 'Passcode changed');
+      }
+      closeLayer(2); refreshSettings();
+    } finally { busy = false; const b2 = $('#L2 [data-act="save"]'); if (b2) b2.textContent = mode === 'remove' ? 'Turn off' : 'Save'; }
+  }
+}
+function askPass(title, hint) {
+  return new Promise(res => {
+    let done = false;
+    const finish = () => { if (done) return; done = true; const v = $('#ap').value; closeLayer(2); res(v); };
+    openLayer(2, head(cancelBtn, title, '<button class="txt-btn strong" data-act="ok">Unlock</button>') + `<form class="sh-body" data-form="ask">
+      <label class="lbl" for="ap">Passcode</label><input class="field" type="password" id="ap" autocomplete="off">
+      <button type="submit" hidden></button><p class="hint" style="margin-top:12px">${hint}</p></form>`,
+      { act(a) { if (a === 'ok') finish(); }, submit: finish, onClose() { if (!done) { done = true; res(null); } } });
+  });
+}
+
+/* ---------- import / export ---------- */
+async function shareOrDownload(blob, name) {
+  const file = new File([blob], name, { type: blob.type });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file] }); return true; }
+    catch (e) { if (e.name === 'AbortError') return false; }
+  }
+  const url = URL.createObjectURL(blob), a = document.createElement('a');
+  a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+  return true;
+}
+function exportBackup() {
+  if (pending > 0) { toast('Saving… try again in a second'); return; }
+  // With a passcode, the stored copy is already encrypted — export it as-is (keeps the share sheet in the same tap).
+  const text = K ? localStorage.getItem(KEY) : JSON.stringify({ app: 'hippo', exportedAt: new Date().toISOString(), ...S }, null, 2);
+  shareOrDownload(new Blob([text], { type: 'application/json' }), `hippo-backup-${todayISO()}${K ? '-encrypted' : ''}.json`).then(ok => {
+    if (ok) { S.lastExport = Date.now(); save(); refreshSettings(); toast('Backup exported'); }
+  });
+}
+function exportCSV() {
+  const q = v => `"${String(v).replace(/"/g, '""')}"`;
+  const rows = [['Category', 'Statement', 'Rating', 'Notes']];
+  S.categories.forEach(c => S.starters.filter(i => i.cat === c.id).sort((a, b) => b.rating - a.rating).forEach(i => rows.push([c.name, i.text, i.rating, i.notes])));
+  shareOrDownload(new Blob(['﻿' + rows.map(r => r.map(q).join(',')).join('\r\n')], { type: 'text/csv' }), `hippo-starters-${todayISO()}.csv`);
+}
+$('#importfile').addEventListener('change', async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f || !S) return;
+  let raw;
+  try { raw = JSON.parse(await f.text()); } catch (err) { toast('That file isn’t a Hippo backup'); return; }
+  if (raw && raw.enc) {
+    if (!cryptoOK) { toast('Encrypted backups need https'); return; }
+    const pass = await askPass('Encrypted backup', 'Enter the passcode Hippo had when this backup was exported.');
+    if (pass == null) return;
+    try { raw = await unseal(raw, await deriveKey(pass, unb64(raw.salt), raw.iter)); }
+    catch (err) { toast('Wrong passcode for that backup'); return; }
+  }
+  const d = sanitize(raw);
+  if (!d) { toast('That file isn’t a Hippo backup'); return; }
+  const legacy = !Array.isArray(raw.people) && Array.isArray(raw.items);
+  if (legacy) {
+    if (!confirm(`Import ${d.starters.length} starters from your Starters backup? They’ll be added to what’s already here (duplicates skipped).`)) return;
+    const map = {};
+    d.categories.forEach(c => {
+      const ex = S.categories.find(x => x.name.toLowerCase() === c.name.toLowerCase());
+      if (ex) map[c.id] = ex.id; else { const nc = { ...c, id: uid() }; S.categories.push(nc); map[c.id] = nc.id; }
+    });
+    const have = new Set(S.starters.map(s => s.cat + '|' + s.text.trim().toLowerCase()));
+    let added = 0;
+    d.starters.forEach(s => { const cat = map[s.cat], k = cat + '|' + s.text.trim().toLowerCase(); if (have.has(k)) return; have.add(k); S.starters.push({ ...s, id: uid(), cat }); added++; });
+    await save(); closeLayer(1); ui.tab = 'starters'; ui.cat = 'all'; saveUI(); render();
+    toast(`Imported ${added} starter${added === 1 ? '' : 's'}`);
+  } else {
+    if (!confirm(`Restore ${d.starters.length} starters and ${d.people.length} people? This replaces everything currently in Hippo.`)) return;
+    d.lastExport = S.lastExport; S = d; await save();
+    closeLayer(1); ui.cat = 'all'; saveUI(); render(); toast('Backup restored');
+  }
+});
+
+/* ---------- toast ---------- */
+let tt;
+function toast(msg, label, action) {
+  const t = $('#toast');
+  t.innerHTML = `<span>${esc(msg)}</span>${label ? `<button>${esc(label)}</button>` : ''}`;
+  if (label) t.querySelector('button').onclick = () => { action(); t.classList.remove('on'); };
+  t.classList.add('on'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('on'), label ? 5000 : 2600);
+}
+
+if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+boot();
+if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(() => {});
+})();
+</script>
+</body>
+</html>
